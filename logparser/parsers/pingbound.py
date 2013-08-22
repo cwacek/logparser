@@ -4,8 +4,6 @@ import re
 from datetime import datetime
 import calendar
 
-__virtual__ = 'PingBound'
-
 
 class PingBound(Parser):
 
@@ -43,3 +41,5 @@ class PingBound(Parser):
 
   def __repr__(self):
     return str(self.data)
+
+__virtual__ = ('pingbound', PingBound)

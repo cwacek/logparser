@@ -13,7 +13,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'logparser = logparser:script_run'
+            'logparser = logparser.cmdline:script_run'
         ]
     },
     license='MIT',
