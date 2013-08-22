@@ -16,7 +16,7 @@ def filelen(fname):
   return os.path.getsize(fname) / (l / 1000)
 
 
-def parse_file(identifier, path):
+def parse_file(identifier, path, parsers):
 
   lines = filelen(path)
   bar = progressbar.ProgressBar(maxval=lines,
@@ -51,10 +51,9 @@ def parse_file(identifier, path):
   return data
 
 
-def main(args):
+def parse(args):
 
   parsers = available_parsers()
-
   datafiles = {}
 
   for (dirpath, dirnames, files) in os.walk(args.logdir):
@@ -62,7 +61,7 @@ def main(args):
       if file in args.lognames:
         path = pathjoin(dirpath, file)
         identifier = os.path.relpath(path, args.logdir)
-        datafiles[identifier] = parse_file(identifier, path)
+        datafiles[identifier] = parse_file(identifier, path, parsers)
 
   if len(datafiles) == 0:
     sys.stderr.write("No files found\n")

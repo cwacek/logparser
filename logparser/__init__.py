@@ -1,7 +1,8 @@
 import argparse
 import logparser
 
-if __name__ == '__main__':
+
+def script_run():
   parser = argparse.ArgumentParser()
   parser.add_argument('logdir',
                       help="A directory from which to search for logfiles")
@@ -17,4 +18,4 @@ if __name__ == '__main__':
                       )
 
   args = parser.parse_args()
-  logparser.logparser.main(args)
+  logparser.core.parse(args)
