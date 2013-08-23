@@ -1,0 +1,19 @@
+---
+- name: coordinfo
+  regex: '(.*)\s\[info\].*\(latency=([0-9.]+)\)\s\(error=([0-9.]+)\)\s\(coord=\[(.*)\]\)\s\(viv_dist=([0-9.]+)\)'
+  fields:
+    - type: time
+      name: time
+    - type: float
+      name: actual
+    - name: remote_error
+      type: float
+    - name: coord
+      type: list
+      separator: ' '
+      subtype: float
+      strip: True
+    - name: estimated
+      type: float
+
+

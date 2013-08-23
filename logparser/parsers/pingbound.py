@@ -13,6 +13,8 @@ class PingBound(Parser):
                      "\[lbound: ([0-9.]+), ubound: ([0-9.]+), "
                      "latency: ([0-9.]+)\]")
 
+  _headers = ['time', 'passed', 'lbound', 'ubound', 'latency']
+
   def __init__(self, line):
     fields = line.split()
 
@@ -38,8 +40,5 @@ class PingBound(Parser):
   @data.setter
   def data(self, d):
     self._data = d
-
-  def __repr__(self):
-    return str(self.data)
 
 __virtual__ = ('pingbound', PingBound)
