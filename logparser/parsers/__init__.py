@@ -1,4 +1,5 @@
 import pkgutil
+import functools
 import logging
 logger = logging.getLogger(__name__)
 
@@ -28,6 +29,18 @@ class Parser(object):
     return str(self.data)
 
 
+def memoize(fn):
+  @functools.wraps(fn)
+  def wrapper():
+    if not hasattr(fn, 'result'):
+      fn.result = fn()
+
+    return fn.result
+
+  return wrapper
+
+
+@memoize
 def available_parsers():
   parsers = {}
   for loader, name, ispkg in pkgutil.iter_modules(__path__):
