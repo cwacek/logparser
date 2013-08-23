@@ -1,4 +1,3 @@
-from operator import itemgetter
 import os.path
 from os.path import join as pathjoin
 import progressbar
@@ -55,6 +54,10 @@ def parse_file(identifier, path, parsers):
   bar.finish()
   logger.debug("Processed {0} lines total".format(ctr))
 
+  for parser, d in data.iteritems():
+    if len(d) == 0:
+      logger.warn("'{0}' parsed zero datapoints".format(parser))
+
   return data
 
 
@@ -69,6 +72,7 @@ def parse(args):
     raise RuntimeError
 
   datafiles = {}
+  processed = 0
 
   for (dirpath, dirnames, files) in os.walk(args.logdir):
     for file in files:
@@ -76,6 +80,7 @@ def parse(args):
         path = pathjoin(dirpath, file)
         identifier = os.path.relpath(path, args.logdir)
         datafiles[identifier] = parse_file(identifier, path, parsers)
+        processed += 1
 
   if len(datafiles) == 0:
     logger.warn("No files found")
