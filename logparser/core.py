@@ -9,14 +9,17 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def filelen(fname):
+def filelen(fname, sample=10000):
+
   l = 0
   with open(fname) as f:
-    for i in xrange(1000):
+    for i in xrange(sample):
       s = next(f)
       l += len(s)
 
-  return os.path.getsize(fname) / (l / 1000)
+  logger.debug("Calculated expected number of lines as {0}"
+               .format(os.path.getsize(fname) / (l / sample)))
+  return os.path.getsize(fname) / (l / sample)
 
 
 def parse_file(identifier, path, parsers):
@@ -50,6 +53,7 @@ def parse_file(identifier, path, parsers):
           pass
 
   bar.finish()
+  logger.debug("Processed {0} lines total".format(ctr))
 
   return data
 
