@@ -60,12 +60,12 @@ def parse_file(identifier, path, parsers):
 
 def parse(args):
 
-  parsers = available_parsers()
+  parsers = dict(((p, available_parsers().get(p)) for p in args.parsers))
+  missing_parsers = [p[0] for p in parsers.iteritems() if p[1] is None]
 
-  missing_parsers = set(args.parsers) - set(parsers.keys())
   if len(missing_parsers):
     logger.warn("Unable to load parsers: {0}"
-                .format(map(itemgetter(0), missing_parsers)))
+                .format(missing_parsers))
     raise RuntimeError
 
   datafiles = {}
