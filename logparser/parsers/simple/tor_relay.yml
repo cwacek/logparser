@@ -15,5 +15,18 @@
       strip: True
     - name: estimated
       type: float
-
+- name: pingbound
+  regex: '(.*)\s\[notice\].*\[PingBound] (Failed.|Passed.).*\[lbound: ([0-9.]+), ubound: ([0-9.]+), latency: ([0-9.]+)\]'
+  fields:
+    - name: time
+      type: time
+    - name: passed
+      type: boolean
+      truth: 'Passed.'
+    - name: lbound
+      type: float
+    - name: ubound
+      type: float
+    - name: latency
+      type: float
 

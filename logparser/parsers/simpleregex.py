@@ -93,7 +93,8 @@ class SimpleRegex(Parser):
       'float': lambda x, **opts: float(x),
       'str': lambda x, **opts: str(x),
       'time': parse_time,
-      'list': parse_list
+      'list': parse_list,
+      'boolean': lambda x, **opts: True if x == opts['truth'] else False
   }
 
   def __init__(self, yaml):
