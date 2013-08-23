@@ -28,7 +28,7 @@ def __loader__():
         try:
           parser = SimpleRegex(parser_data)
         except Exception, e:
-          logger.debug("Failed to load {0} parser from {1}: {2}"
+          logger.debug("Failed to load #{0} parser from {1}: {2}"
                        .format(i, f, e))
         else:
           yield (parser.name, parser.run)
@@ -136,6 +136,7 @@ class SimpleRegex(Parser):
     """
 
     match = self.regex.search(line)
+    match = self.regex.match(line)
     if not match:
       raise ValueError
 
