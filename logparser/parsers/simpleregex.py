@@ -135,7 +135,6 @@ class SimpleRegex(Parser):
       calling __init__ as a regular parser would.
     """
 
-    match = self.regex.search(line)
     match = self.regex.match(line)
     if not match:
       raise ValueError
