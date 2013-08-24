@@ -130,11 +130,15 @@ def render_plot(gp, args):
     pp += ggplot2.geom_point()
   elif args.type == 'lines':
     pp += ggplot2.geom_lines()
+  elif args.type == 'boxplot':
+    pp += ggplot2.geom_boxplot()
   else:
     raise Exception("{0} not implemented".format(args.type))
 
   if args.facets is not None:
-    pp += ggplot2.facet_grid(ro.Formula(args.facets), scales='free')
+    pp += ggplot2.facet_grid(ro.Formula(args.facets))
+
+  if 
 
   try:
     pp.plot()

@@ -62,7 +62,7 @@ def add_graph_args(subp):
                       required=True)
   parser.add_argument('-t', '--type',
                       help='Type of plot to make',
-                      choices=['line', 'points'],
+                      choices=['lines', 'points', 'boxplot'],
                       default='points')
   parser.add_argument('--facets',
                       help="Split into multiple plots based on this value. "
