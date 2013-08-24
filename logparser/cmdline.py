@@ -2,10 +2,13 @@ import argparse
 import sys
 import core
 import postprocess.manip
-try:
+
+
+def run_postprocess_plot(args):
+  """ Helper to allow us to fail imports for
+      rpy2 only if we're plotting """
   import postprocess.plot
-except:
-  pass
+  postprocess.plot.plot(args)
 
 
 def setup_logging():
@@ -66,7 +69,7 @@ def add_graph_args(subp):
                            "'file_' is a special value which splits on parsed "
                            "files.")
 
-  parser.set_defaults(func=postprocess.plot.plot)
+  parser.set_defaults(func=run_postprocess_plot)
 
 
 def add_flatten_args(subp):
