@@ -33,6 +33,34 @@ def add_parser_args(subp):
   parse_p.set_defaults(func=core.parse)
 
 
+def add_graph_args(subp):
+  parser = subp.add_parser('graph', help='Plot using ggplot')
+
+  parser.add_argument('input',
+                      help="A file output by 'parse'")
+
+  parser.add_argument('-p',
+                      help="Grab data gathered by this parser. If none, "
+                           "take the first one seen.",
+                      default=None)
+
+  parser.add_argument('-f',
+                      help="Filter files to include. '*' will "
+                           "glob like the shell",
+                      default='*')
+
+  parser.add_argument('-x', help="The variable to put on the X-axis",
+                      required=True)
+  parser.add_argument('-y', help="The variable to put on the Y-axis",
+                      required=True)
+  parser.add_argument('-t', '--type',
+                      help='Type of plot to make',
+                      choices=['line', 'points'],
+                      default='points')
+
+  parser.set_defaults(func=postprocess.plot)
+
+
 def add_flatten_args(subp):
   parser = subp.add_parser('flatten')
 
@@ -57,6 +85,7 @@ def script_run():
 
   add_parser_args(subp)
   add_flatten_args(subp)
+  add_graph_args(subp)
 
   args = parser.parse_args()
   logger = setup_logging()
