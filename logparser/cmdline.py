@@ -53,14 +53,18 @@ def add_graph_args(subp):
                            "glob like the shell",
                       default='*')
 
-  parser.add_argument('-x', help="The variable to put on the X-axis",
+  parser.add_argument('-x', help="The expression to put on the X-axis",
                       required=True)
-  parser.add_argument('-y', help="The variable to put on the Y-axis",
+  parser.add_argument('-y', help="The expression to put on the Y-axis",
                       required=True)
   parser.add_argument('-t', '--type',
                       help='Type of plot to make',
                       choices=['line', 'points'],
                       default='points')
+  parser.add_argument('--facets',
+                      help="Split into multiple plots based on this value. "
+                           "'file_' is a special value which splits on parsed "
+                           "files.")
 
   parser.set_defaults(func=postprocess.plot.plot)
 
