@@ -134,7 +134,7 @@ def render_plot(gp, args):
     raise Exception("{0} not implemented".format(args.type))
 
   if args.facets is not None:
-    pp += ggplot2.facet_grid(ro.Formula(args.facets))
+    pp += ggplot2.facet_grid(ro.Formula(args.facets), scales='free')
 
   try:
     pp.plot()
