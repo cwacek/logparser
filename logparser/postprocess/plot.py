@@ -4,6 +4,17 @@ import json
 import logging
 logger = logging.getLogger(__name__)
 
+
+class SavePlotException(Exception):
+  def __init__(self, fname):
+    self._fname = fname
+    Exception.__init__(self)
+
+  @property
+  def filename(self):
+    return self._fname
+
+
 try:
   import rpy2.robjects as ro
   import rpy2.robjects.lib.ggplot2 as ggplot2
@@ -52,12 +63,17 @@ def plot(args):
   gp = ggplot2.ggplot(r_dataf)
 
   plotargs = get_ggplot_args(args)
-  try:
-    while True:
-      render_plot(gp, plotargs)
+  while True:
+    render_plot(gp, plotargs)
+    try:
       plotargs = print_menu(plotargs, dataf)
-  except StopIteration:
-    return
+    except SavePlotException as e:
+      try:
+        ro.r("ggsave(filename='{0}')".format(e.filename))
+      except IOError as io:
+        logging.warn("Error saving plot: {0}".format(io))
+    except StopIteration:
+      return
 
 
 def print_menu(plot_args, dataframe):
@@ -77,6 +93,7 @@ Commands:
   set <var> <value>     Set a variable to a new value
   replot                Replot with new variables
   peek <n>              Peek at the top <n> rows of data
+  save <filename>       Save the current plot to <filename>
   quit                  Exit the plotter
     """.format(plotargs=plot_args.prettyprint()))
 
@@ -109,6 +126,9 @@ Commands:
     if cmd[0] == 'replot':
       return plot_args
 
+    if cmd[0] == 'save':
+      raise SavePlotException(cmd[1])
+
 
 def render_plot(gp, args):
   """Render a plot using ggplot
@@ -130,6 +150,8 @@ def render_plot(gp, args):
     pp += ggplot2.geom_point()
   elif args.type == 'lines':
     pp += ggplot2.geom_lines()
+  elif args.type == 'boxplot':
+    pp += ggplot2.geom_boxplot()
   else:
     raise Exception("{0} not implemented".format(args.type))
 
