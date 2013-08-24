@@ -55,16 +55,17 @@ def plot(args):
   try:
     while True:
       render_plot(gp, plotargs)
-      plotargs = print_menu(plotargs)
+      plotargs = print_menu(plotargs, dataf)
   except StopIteration:
     return
 
 
-def print_menu(plot_args):
+def print_menu(plot_args, dataframe):
   """Allow people to plot different things
   without exiting
 
   :plot_args: The current plot args
+  :dataframe: The dataframe we're working with
   :returns: New plot args
   """
 
@@ -75,10 +76,14 @@ def print_menu(plot_args):
 Commands:
   set <var> <value>     Set a variable to a new value
   replot                Replot with new variables
+  peek <n>              Peek at the top <n> rows of data
   quit                  Exit the plotter
     """.format(plotargs=plot_args.prettyprint()))
 
     cmd = raw_input('> ').strip().split()
+
+    if len(cmd) < 1:
+      continue
 
     if cmd[0] == 'quit':
       raise StopIteration()
@@ -88,6 +93,18 @@ Commands:
         plot_args[cmd[1]] = " ".join(cmd[2:])
       except IndexError:
         print("'set' requires a variable name and a value")
+
+    if cmd[0] == 'peek':
+      try:
+        print("DATA: ")
+        print(" ".join(dataframe.headers))
+        for row in dataframe.by_row(int(cmd[1]), convert=str):
+          print(" ".join(row))
+        print("")
+      except IndexError:
+        print("Too many rows to peek")
+      except ValueError:
+        print("Couldn't parse row number")
 
     if cmd[0] == 'replot':
       return plot_args

@@ -58,9 +58,13 @@ class DataFrame(object):
 
     self.row_count += 1
 
-  def by_row(self):
-    for i in xrange(self.row_count):
-      yield [self._data[key][i] for key in self.headers]
+  def by_row(self, limit=None, convert=None):
+    limit = self.row_count if limit is None else limit
+    if convert is None:
+      convert = lambda x: x
+
+    for i in xrange(limit):
+      yield [convert(self._data[key][i]) for key in self.headers]
 
   def __len__(self):
     return self.row_count
