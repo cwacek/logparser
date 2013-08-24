@@ -36,8 +36,10 @@ class DataFrame(object):
         conv[key] = ro.IntVector(self.raw[key])
       elif isinstance(self.raw[key][0], (float)):
         conv[key] = ro.FloatVector(self.raw[key])
-      elif isinstance(self.raw[key][0], (str)):
+      elif isinstance(self.raw[key][0], (basestring)):
         conv[key] = ro.StrVector(self.raw[key])
+      else:
+        logger.warn("Failed to convert '{0}' to R Vector".format(key))
 
     return conv
 
