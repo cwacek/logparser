@@ -1,7 +1,11 @@
 import argparse
 import sys
 import core
-import postprocess
+import postprocess.manip
+try:
+  import postprocess.plot
+except:
+  pass
 
 
 def setup_logging():
@@ -58,7 +62,7 @@ def add_graph_args(subp):
                       choices=['line', 'points'],
                       default='points')
 
-  parser.set_defaults(func=postprocess.plot)
+  parser.set_defaults(func=postprocess.plot.plot)
 
 
 def add_flatten_args(subp):
@@ -76,7 +80,7 @@ def add_flatten_args(subp):
   parser.add_argument('input',
                       help="A file output by 'parse'")
 
-  parser.set_defaults(func=postprocess.flatten)
+  parser.set_defaults(func=postprocess.manip.flatten)
 
 
 def script_run():
