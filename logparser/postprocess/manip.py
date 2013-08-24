@@ -27,5 +27,5 @@ def flatten(args):
 
   print(" ".join(flattened.headers))
 
-  for row in flattened.by_row():
+  for row in flattened.by_row(convert=str):
     print(" ".join(row))
