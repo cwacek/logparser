@@ -138,5 +138,5 @@ def render_plot(gp, args):
 
   try:
     pp.plot()
-  except Exception as e:
-    logger.warn("Plotting error: {0}".format(e))
+  except Exception:
+    pass

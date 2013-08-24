@@ -31,7 +31,7 @@ class DataFrame(object):
   def asRObjects(self):
     import rpy2.robjects as ro
     conv = {}
-    for key in self.raw:
+    for key in self.headers:
       if isinstance(self.raw[key][0], (int)):
         conv[key] = ro.IntVector(self.raw[key])
       elif isinstance(self.raw[key][0], (float)):
