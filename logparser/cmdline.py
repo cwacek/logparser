@@ -1,6 +1,7 @@
 import argparse
 import sys
 import core
+import string
 import postprocess.manip
 
 
@@ -23,6 +24,18 @@ def setup_logging():
   return logger
 
 
+class ParserOptsAction(argparse.Action):
+  def __call__(self, parser, namespace, values, option_string=None):
+    name, val = values.split('=')
+    if namespace.parser_opts is None:
+      namespace.parser_opts = dict()
+
+    if name in namespace.parser_opts:
+      namespace.parser_opts[name].append(val)
+    else:
+      namespace.parser_opts[name] = [val]
+
+
 def add_parser_args(subp):
   parse_p = subp.add_parser('parse')
   parse_p.add_argument("-o", help="Output filename",
@@ -32,6 +45,10 @@ def add_parser_args(subp):
                        help="The parsers to use. Will search for them in"
                             "the logparser.parsers namespace."
                        )
+  parse_p.add_argument('--parser_opts', action=ParserOptsAction,
+                       help="Any parser specific options in "
+                            "'parser_name.option=value' "
+                            "syntax.")
   parse_p.add_argument('logdir',
                        help="A directory from which to search for logfiles")
   parse_p.add_argument('lognames', nargs='+',

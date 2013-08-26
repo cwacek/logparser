@@ -11,8 +11,12 @@ import yaml
 OBJ = lambda **kwargs: type('obj', (object,), kwargs)()
 
 
-def __loader__():
-  """ Load all of the simple YAML regex parsers """
+def __loader__(opts):
+  """ Load all of the simple YAML regex parsers.
+
+  If 'parsers.simpleregex.files' is provided in :opts:, try and
+  load from that path in addition to the built in directory.
+  """
   files = resource_listdir('logparser.parsers', 'simple')
 
   for f in ('simple/{0}'.format(x) for x in files if x[0] != '.'):
@@ -32,6 +36,25 @@ def __loader__():
                        .format(i, f, e))
         else:
           yield (parser.name, parser.run)
+
+  if 'simpleregex.files' in opts.parser_opts:
+    for f in opts.parser_opts['simpleregex.files']:
+      with open(f) as fin:
+        try:
+          data = yaml.load(fin)
+        except Exception as e:
+          logging.info("Skipping '{0}'. Invalid format".format(f))
+          logging.debug("Load Error: {0}".format(e))
+          continue
+
+        for i, parser_data in enumerate(data, 1):
+          try:
+            parser = SimpleRegex(parser_data)
+          except Exception, e:
+            logger.debug("Failed to load #{0} parser from {1}: {2}"
+                         .format(i, f, e))
+          else:
+            yield (parser.name, parser.run)
 
 
 def parse_time(timestring, **opts):

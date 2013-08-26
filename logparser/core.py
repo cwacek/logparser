@@ -63,7 +63,7 @@ def parse_file(identifier, path, parsers):
 
 def parse(args):
 
-  parsers = dict(((p, available_parsers().get(p)) for p in args.parsers))
+  parsers = dict(((p, available_parsers(args).get(p)) for p in args.parsers))
   missing_parsers = [p[0] for p in parsers.iteritems() if p[1] is None]
 
   if len(missing_parsers):

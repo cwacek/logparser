@@ -31,9 +31,9 @@ class Parser(object):
 
 def memoize(fn):
   @functools.wraps(fn)
-  def wrapper():
+  def wrapper(*args, **kwargs):
     if not hasattr(fn, 'result'):
-      fn.result = fn()
+      fn.result = fn(*args, **kwargs)
 
     return fn.result
 
@@ -41,7 +41,7 @@ def memoize(fn):
 
 
 @memoize
-def available_parsers():
+def available_parsers(opts):
   parsers = {}
   for loader, name, ispkg in pkgutil.iter_modules(__path__):
 
@@ -49,7 +49,7 @@ def available_parsers():
     parser = actual_loader.load_module(actual_loader.fullname)
 
     if hasattr(parser, '__loader__'):
-      for name, cls in parser.__loader__():
+      for name, cls in parser.__loader__(opts):
         parsers[name] = cls
         logger.debug("Loaded {0} for '{1}'".format(cls, name))
 
