@@ -8,6 +8,7 @@ import calendar
 class PingBound(Parser):
 
   name = 'pingbound'
+  desc = "Parse output of PingBound protection from Tor log files"
 
   regex = re.compile(r"\[PingBound\] (Failed.|Passed.).*"
                      "\[lbound: ([0-9.]+), ubound: ([0-9.]+), "

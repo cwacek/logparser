@@ -7,6 +7,8 @@ import re
 import itertools
 from pkg_resources import resource_listdir, resource_stream
 import yaml
+import os
+import os.path as pth
 
 OBJ = lambda **kwargs: type('obj', (object,), kwargs)()
 
@@ -30,16 +32,16 @@ def __loader__(opts):
 
       for i, parser_data in enumerate(data, 1):
         try:
-          parser = SimpleRegex(parser_data)
-        except Exception, e:
-          logger.debug("Failed to load #{0} parser from {1}: {2}"
-                       .format(i, f, e))
-        else:
-          yield (parser.name, parser.run)
+          yield SimpleRegex.Load(parser_data)
+        except ValueError as e:
+            logger.debug("Failed to load #{0} parser from {1}: {2}"
+                         .format(i, f, e))
 
   if 'simpleregex.files' in opts.parser_opts:
     for f in opts.parser_opts['simpleregex.files']:
-      with open(f) as fin:
+      path = pth.expanduser(f)
+      path = path if pth.isabs(path) else pth.join(os.getcwd(), path)
+      with open(path) as fin:
         try:
           data = yaml.load(fin)
         except Exception as e:
@@ -49,12 +51,10 @@ def __loader__(opts):
 
         for i, parser_data in enumerate(data, 1):
           try:
-            parser = SimpleRegex(parser_data)
-          except Exception, e:
-            logger.debug("Failed to load #{0} parser from {1}: {2}"
-                         .format(i, f, e))
-          else:
-            yield (parser.name, parser.run)
+            yield SimpleRegex.Load(parser_data)
+          except ValueError as e:
+              logger.debug("Failed to load #{0} parser from {1}: {2}"
+                           .format(i, f, e))
 
 
 def parse_time(timestring, **opts):
@@ -140,10 +140,16 @@ class SimpleRegex(Parser):
       'boolean': lambda x, **opts: True if x == opts['truth'] else False
   }
 
+  _desc = "None provided"
+
   def __init__(self, yaml):
 
     self._name = yaml['name']
     self._data = {}
+    try:
+      self._desc = yaml['desc']
+    except KeyError:
+      pass
 
     try:
       self.regex = re.compile(yaml['regex'])
@@ -194,5 +200,22 @@ class SimpleRegex(Parser):
                         .format(matched, field['type']))
 
     return OBJ(data=data, name=self.name, headers=self.headers)
+
+  @classmethod
+  def Load(cls, parser_data):
+    """ Load a SimpleRegex parser from :parser_data:
+
+      Return the appropriate callable for use with
+      __loader__
+    """
+    parser = SimpleRegex(parser_data)
+
+    # We return a special object that encapsulates a bound method
+    # specific to this instance and provides access to the
+    # properties of the instance
+    runner = OBJ(name=parser.name,
+                 desc=parser._desc,
+                 __call__=parser.run)
+    return (parser.name, runner)
 
 __virtual__ = ('SimpleRegex', SimpleRegex)

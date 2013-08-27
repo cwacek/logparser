@@ -37,7 +37,9 @@ class ParserOptsAction(argparse.Action):
 
 
 def add_parser_args(subp):
-  parse_p = subp.add_parser('parse')
+  parse_p = subp.add_parser('parse',
+                            help="Parse data from a set of files using one "
+                                 "or more parsers")
   parse_p.add_argument("-o", help="Output filename",
                        metavar="OUTPUT", required=True)
 
@@ -48,13 +50,29 @@ def add_parser_args(subp):
   parse_p.add_argument('--parser_opts', action=ParserOptsAction,
                        help="Any parser specific options in "
                             "'parser_name.option=value' "
-                            "syntax.")
+                            "syntax.",
+                       default={})
+
   parse_p.add_argument('logdir',
                        help="A directory from which to search for logfiles")
   parse_p.add_argument('lognames', nargs='+',
                        help="Names which should be considered log files",
                        default=['log'])
   parse_p.set_defaults(func=core.parse)
+
+
+def add_list_args(subp):
+  parser = subp.add_parser('list', help="List system information")
+  parser.add_argument('infotype', choices=['parsers'],
+                      help="Information to list")
+
+  parser.add_argument('--parser_opts', action=ParserOptsAction,
+                      help="Any parser specific options in "
+                           "'parser_name.option=value' "
+                           "syntax.",
+                      default={})
+
+  parser.set_defaults(func=core.list)
 
 
 def add_graph_args(subp):
@@ -90,7 +108,8 @@ def add_graph_args(subp):
 
 
 def add_flatten_args(subp):
-  parser = subp.add_parser('flatten')
+  parser = subp.add_parser('flatten',
+                           help="Transform parsed data into tabular output.")
 
   parser.add_argument('-p',
                       help="Flatten data from this parser. If not "
@@ -112,6 +131,7 @@ def script_run():
   subp = parser.add_subparsers()
 
   add_parser_args(subp)
+  add_list_args(subp)
   add_flatten_args(subp)
   add_graph_args(subp)
 

@@ -27,6 +27,11 @@ class Parser(object):
     return self._data
 
   @property
+  def desc(self):
+    """ Return the parser description """
+    return self._desc
+
+  @property
   def name(self):
     return self._name
 
