@@ -7,6 +7,8 @@ import re
 import itertools
 from pkg_resources import resource_listdir, resource_stream
 import yaml
+import os
+import os.path as pth
 
 OBJ = lambda **kwargs: type('obj', (object,), kwargs)()
 
@@ -45,7 +47,9 @@ def __loader__(opts):
 
   if 'simpleregex.files' in opts.parser_opts:
     for f in opts.parser_opts['simpleregex.files']:
-      with open(f) as fin:
+      path = pth.expanduser(f)
+      path = path if pth.isabs(path) else pth.join(os.getcwd(), path)
+      with open(path) as fin:
         try:
           data = yaml.load(fin)
         except Exception as e:
