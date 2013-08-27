@@ -61,9 +61,19 @@ def parse_file(identifier, path, parsers):
   return data
 
 
+def list(args):
+  """ List system information """
+
+  if args.infotype == 'parsers':
+    for name, parser in available_parsers(args).iteritems():
+      print("{0:15} - {1}".format(name, parser.desc))
+    return
+
+
 def parse(args):
 
   parsers = dict(((p, available_parsers(args).get(p)) for p in args.parsers))
+
   missing_parsers = [p[0] for p in parsers.iteritems() if p[1] is None]
 
   if len(missing_parsers):

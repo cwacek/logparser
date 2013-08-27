@@ -35,7 +35,13 @@ def __loader__(opts):
           logger.debug("Failed to load #{0} parser from {1}: {2}"
                        .format(i, f, e))
         else:
-          yield (parser.name, parser.run)
+          # We return a special object that encapsulates a bound method
+          # specific to this instance and provides access to the
+          # properties of the instance
+          runner = OBJ(name=parser.name,
+                       desc=parser._desc,
+                       __call__=parser.run)
+          yield (parser.name, runner)
 
   if 'simpleregex.files' in opts.parser_opts:
     for f in opts.parser_opts['simpleregex.files']:
@@ -140,10 +146,16 @@ class SimpleRegex(Parser):
       'boolean': lambda x, **opts: True if x == opts['truth'] else False
   }
 
+  _desc = "None provided"
+
   def __init__(self, yaml):
 
     self._name = yaml['name']
     self._data = {}
+    try:
+      self._desc = yaml['desc']
+    except KeyError:
+      pass
 
     try:
       self.regex = re.compile(yaml['regex'])

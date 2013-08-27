@@ -1,5 +1,6 @@
 ---
 - name: coordinfo
+  desc: Latency, error and coordinates from Tor relay logfiles
   regex: '(.*)\s\[info\].*\(latency=([0-9.]+)\)\s\(error=([0-9.]+)\)\s\(coord=\[(.*)\]\)\s\(viv_dist=([0-9.]+)\)'
   fields:
     - type: time
@@ -16,6 +17,7 @@
     - name: estimated
       type: float
 - name: pingbound
+  desc: Parser output of PingBound protection from Tor log files
   regex: '(.*)\s\[notice\].*\[PingBound] (Failed.|Passed.).*\[lbound: ([0-9.]+), ubound: ([0-9.]+), latency: ([0-9.]+)\]'
   fields:
     - name: time
@@ -29,4 +31,5 @@
       type: float
     - name: latency
       type: float
+
 
