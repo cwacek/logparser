@@ -32,18 +32,10 @@ def __loader__(opts):
 
       for i, parser_data in enumerate(data, 1):
         try:
-          parser = SimpleRegex(parser_data)
-        except Exception, e:
-          logger.debug("Failed to load #{0} parser from {1}: {2}"
-                       .format(i, f, e))
-        else:
-          # We return a special object that encapsulates a bound method
-          # specific to this instance and provides access to the
-          # properties of the instance
-          runner = OBJ(name=parser.name,
-                       desc=parser._desc,
-                       __call__=parser.run)
-          yield (parser.name, runner)
+          yield SimpleRegex.Load(parser_data)
+        except ValueError as e:
+            logger.debug("Failed to load #{0} parser from {1}: {2}"
+                         .format(i, f, e))
 
   if 'simpleregex.files' in opts.parser_opts:
     for f in opts.parser_opts['simpleregex.files']:
@@ -59,12 +51,10 @@ def __loader__(opts):
 
         for i, parser_data in enumerate(data, 1):
           try:
-            parser = SimpleRegex(parser_data)
-          except Exception, e:
-            logger.debug("Failed to load #{0} parser from {1}: {2}"
-                         .format(i, f, e))
-          else:
-            yield (parser.name, parser.run)
+            yield SimpleRegex.Load(parser_data)
+          except ValueError as e:
+              logger.debug("Failed to load #{0} parser from {1}: {2}"
+                           .format(i, f, e))
 
 
 def parse_time(timestring, **opts):
@@ -210,5 +200,22 @@ class SimpleRegex(Parser):
                         .format(matched, field['type']))
 
     return OBJ(data=data, name=self.name, headers=self.headers)
+
+  @classmethod
+  def Load(cls, parser_data):
+    """ Load a SimpleRegex parser from :parser_data:
+
+      Return the appropriate callable for use with
+      __loader__
+    """
+    parser = SimpleRegex(parser_data)
+
+    # We return a special object that encapsulates a bound method
+    # specific to this instance and provides access to the
+    # properties of the instance
+    runner = OBJ(name=parser.name,
+                 desc=parser._desc,
+                 __call__=parser.run)
+    return (parser.name, runner)
 
 __virtual__ = ('SimpleRegex', SimpleRegex)
