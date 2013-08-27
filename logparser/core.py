@@ -21,7 +21,11 @@ def filelen(fname, sample=10000):
   return os.path.getsize(fname) / (l / sample)
 
 
-def parse_file(identifier, path, parsers):
+def parse_file(identifier, path, parsers, highlight=False):
+  """ Apply each available parser to a file and return
+  the processed output. If :highlight: is set, actually output
+  the files with parsed lines highlighted.
+  """
 
   lines = filelen(path)
   bar = progressbar.ProgressBar(maxval=lines,
@@ -41,6 +45,7 @@ def parse_file(identifier, path, parsers):
         bar.update(ctr)
       ctr += 1
 
+      line_parsed = False
       for parser_name, parser in parsers.iteritems():
         if parser_name not in data:
           data[parser_name] = []
@@ -48,8 +53,15 @@ def parse_file(identifier, path, parsers):
         try:
           parsed = parser(line)
           data[parser_name].append(parsed.data)
+          line_parsed = True
         except ValueError:
           pass
+
+      if highlight:
+        if line_parsed:
+          print("\033[92m{0}\033[0m".format(line.strip()))
+        else:
+          print("{0}".format(line.strip()))
 
   bar.finish()
   logger.debug("Processed {0} lines total".format(ctr))
@@ -89,7 +101,8 @@ def parse(args):
       if file in args.lognames:
         path = pathjoin(dirpath, file)
         identifier = os.path.relpath(path, args.logdir)
-        datafiles[identifier] = parse_file(identifier, path, parsers)
+        datafiles[identifier] = parse_file(identifier, path,
+                                           parsers, highlight=args.visual)
         processed += 1
 
   if len(datafiles) == 0:

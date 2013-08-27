@@ -53,6 +53,9 @@ def add_parser_args(subp):
                             "syntax.",
                        default={})
 
+  parse_p.add_argument('--visual', help='Show visually which lines are parsed',
+                       action='store_true')
+
   parse_p.add_argument('logdir',
                        help="A directory from which to search for logfiles")
   parse_p.add_argument('lognames', nargs='+',
