@@ -149,14 +149,17 @@ def render_plot(gp, args):
   if args.type == 'points':
     pp += ggplot2.geom_point()
   elif args.type == 'lines':
-    pp += ggplot2.geom_lines()
+    pp += ggplot2.geom_line()
   elif args.type == 'boxplot':
     pp += ggplot2.geom_boxplot()
   else:
     raise Exception("{0} not implemented".format(args.type))
 
   if args.facets is not None:
-    pp += ggplot2.facet_grid(ro.Formula(args.facets))
+    try:
+      pp += ggplot2.facet_grid(ro.Formula(args.facets))
+    except Exception:
+      pass
 
   try:
     pp.plot()

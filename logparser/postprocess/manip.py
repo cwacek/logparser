@@ -11,7 +11,7 @@ def flatten(args):
   try:
     with open(args.input) as fin:
       data = json.load(fin)
-  except json.error as e:
+  except Exception as e:
     logger.error("Invalid input file. Expected JSON")
     logger.debug("JSON Error: {0}".format(e))
     raise RuntimeError()
@@ -23,7 +23,7 @@ def flatten(args):
   # Get the first one
   parser = data.values()[0].keys()[0] if args.p is None else args.p
 
-  flattened = util.filter_and_flatten(data, args.f, parser)
+  flattened = util.filter_and_flatten(data, args.f, parser, label_files=True)
 
   print(" ".join(flattened.headers))
 
