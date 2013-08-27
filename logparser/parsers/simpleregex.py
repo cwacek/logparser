@@ -63,12 +63,12 @@ def parse_time(timestring, **opts):
   year to the current year.
 
   :timestring: The string
-  :format: String format as used by datetime.strptime
+  :fmt: String format as used by datetime.strptime
   :returns: float
 
   >>> parse_time('Aug 21 18:05:04.000')
   1377108304
-  >>> parse_time('2/24/2012 4:25:22 PM', '%m/%d/%Y %I:%M:%S %p')
+  >>> parse_time('2/24/2012 4:25:22 PM', fmt='%m/%d/%Y %I:%M:%S %p')
   1330100722
   """
   import calendar
@@ -88,7 +88,7 @@ def parse_list(string, strip=True, **opts):
   """ Parse a list from a string.
 
   Parse the list by splitting it apart based
-  on :separator:. If not defined, defaults to the
+  on :sep:. If not defined, defaults to the
   standard behavior of string.split(). Unless :strip:
   is false, strip each split field.
 
@@ -105,17 +105,17 @@ def parse_list(string, strip=True, **opts):
   >>> parse_list('9 4 3 2.4 5', subtype='float')
   [9.0, 4.0, 3.0, 2.4, 5.0]
 
-  >>> parse_list('James Bond, Sherlock Holmes', split=',')
+  >>> parse_list('James Bond, Sherlock Holmes', sep=',')
   ['James Bond', 'Sherlock Holmes']
 
-  >>> parse_list('James Bond, Sherlock Holmes', split=',', strip=False)
+  >>> parse_list('James Bond, Sherlock Holmes', sep=',', strip=False)
   ['James Bond', ' Sherlock Holmes']
   """
 
-  sep = opts['separator'] if 'separator' in opts else None
+  sep = opts['sep'] if 'sep' in opts else None
   fields = string.strip().split(sep)
 
-  if opts['strip']:
+  if strip:
     fields = [field.strip() for field in fields]
 
   if 'subtype' not in opts:
