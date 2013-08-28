@@ -17,6 +17,12 @@ files and aggregating data. To be able to read a new file, you
 simply implement a parser and put it somewhere `logparser` can
 pick it up.
 
+Install
+-------
+
+Simply `python setup.py install`. If you want to use the graphing
+functions, you need R and the python rpy2 package.
+
 Parser Framework
 ----------------
 
