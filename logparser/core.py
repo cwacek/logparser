@@ -12,13 +12,16 @@ def filelen(fname, sample=10000):
 
   l = 0
   with open(fname) as f:
-    for i in xrange(sample):
-      s = next(f)
-      l += len(s)
+    try:
+      for i in xrange(sample):
+        s = next(f)
+        l += len(s)
+    except StopIteration:
+      pass
 
   logger.debug("Calculated expected number of lines as {0}"
-               .format(os.path.getsize(fname) / (l / sample)))
-  return os.path.getsize(fname) / (l / sample)
+               .format(os.path.getsize(fname) / (l / i)))
+  return os.path.getsize(fname) / (l / i)
 
 
 def parse_file(identifier, path, parsers, highlight=False):
