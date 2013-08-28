@@ -28,11 +28,24 @@ Parser Framework
 
 Parsers are designed to be modular, so they're simply callable
 objects with a couple of attributes. Parsers are searched for in
-the `logparser.parserse namespace. A `parser' is considered to be
-any callable which given a string returns a dictionary of data
-parsed from it or raises a ValueError if the line doesn't contain
+the `logparser.parsers` namespace. A `parser' is considered to be
+any callable which given a string returns an object with certain
+attributes or raises a ValueError if the line doesn't contain
 relevant data.
 
+The following attributes should be present on both parsers and the 
+object returned by calling them:
+
+- `name`: The name of the parser
+- `desc`: A description of the parser
+- `headers`:  A list of strings naming the headers this parser
+  creates
+
+An object returned from a parser should have the
+following additional attributes:
+
+- `data`: A dictionary of data lists, keyed by `headers`.
+  
 Since parsers are just callables, it's perfectly reasonable to
 have them be methods on an instance. The same instance will
 then be used on each line, allowing complicated parsers which
