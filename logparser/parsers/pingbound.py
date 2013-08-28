@@ -42,4 +42,4 @@ class PingBound(Parser):
   def data(self, d):
     self._data = d
 
-__virtual__ = ('pingbound-old', PingBound)
+__parser__ = ('pingbound-old', PingBound)

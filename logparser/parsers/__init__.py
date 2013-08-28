@@ -93,10 +93,10 @@ def available_parsers(opts):
     >>> [(x[0], callable(x[1])) for x in __example_loader__({})]
     [('ex1', True), ('ex2', True)]
 
-  2. __virtual__
+  2. __parser__
 
     A module can define a single parser by providing a
-    __virtual__ definition for the parser. This should be
+    __parser__ definition for the parser. This should be
     a tuple containing the name of the parser and a
     callable as described above.
   """
@@ -114,8 +114,8 @@ def available_parsers(opts):
 
     else:
       try:
-        parsers[parser.__virtual__[0]] = parser.__virtual__[1]
-        logger.debug("Loaded {0[1]} for '{0[0]}'".format(parser.__virtual__))
+        parsers[parser.__parser__[0]] = parser.__parser__[1]
+        logger.debug("Loaded {0[1]} for '{0[0]}'".format(parser.__parser__))
       except:
         logger.debug("Failed to load parser from %s" % actual_loader.filename)
 

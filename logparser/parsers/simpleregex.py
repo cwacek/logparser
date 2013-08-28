@@ -217,5 +217,3 @@ class SimpleRegex(Parser):
                  desc=parser._desc,
                  __call__=parser.run)
     return (parser.name, runner)
-
-__virtual__ = ('SimpleRegex', SimpleRegex)
