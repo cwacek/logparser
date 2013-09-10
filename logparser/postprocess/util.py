@@ -18,7 +18,7 @@ class Namespace(dict):
   def prettyprint(self):
     rep = ""
     for key, val in self.iteritems():
-      rep += "\t{0:<12} '{1}'\n".format(key, val)
+      rep += "\t{0:<20} '{1}'\n".format(key, val)
     return rep
 
 
@@ -149,3 +149,17 @@ def filter_and_flatten(json_data, filefilter, parser, label_files=False):
       datapoints.add_row(file_=fname, **dp)
 
   return datapoints
+
+
+def prompt(label, default=''):
+  """ Prompt for a user value with :label:.
+  Allow users to just hit enter if :default: is not
+  None.
+  """
+  entry = raw_input('{label}: [{cur}] '
+                    .format(label=label, cur=default))
+
+  if len(entry.strip()) == 0:
+    return default
+
+  return entry.strip()

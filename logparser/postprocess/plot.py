@@ -30,14 +30,14 @@ def get_ggplot_args(argparse_args):
   :argparse_args: cmdline parsed args
   :returns: util.Namespace with ggplot args in it
   """
-  ggplot_names = ('x', 'y', 'type', 'facets')
+  ggplot_names = ('x', 'y', 'type')
   ggplot_args = dict(((arg, None) for arg in ggplot_names))
 
   for argname in argparse_args.__dict__:
     if argname in ggplot_names:
       ggplot_args[argname] = getattr(argparse_args, argname)
 
-  return util.Namespace(ggplot_args)
+  return {'cmdline': util.Namespace(ggplot_args)}
 
 
 def plot(args):
@@ -77,11 +77,36 @@ def plot(args):
     have_plot = render_plot(gp, plotargs)
 
 
-def print_menu(plot_args, dataframe, have_plot):
+def geometry_prompt(current=None):
+  """ Ask the user whe specification the new geometry
+  should have.
+  """
+  if current is None:
+    print("Creating new geometry")
+    current = util.Namespace({})
+
+  current.set('x',
+              util.prompt('x-axis', current.get('x', None))) \
+         .set('y',
+              util.prompt('y-axis', current.get('y', None))) \
+         .set('col.aes',
+              util.prompt('data-varied color',
+                          current.get('col.aes', None))) \
+         .set('col.fixed',
+              util.prompt('fixed color',
+                          current.get('col.fixed', None)))   \
+         .set('type',
+              util.prompt('type (line, point, smooth)',
+                          current.get('type', None)))
+
+  return current
+
+
+def print_menu(geometries, dataframe, have_plot):
   """Allow people to plot different things
   without exiting
 
-  :plot_args: The current plot args
+  :geometries: The current set of geometries
   :dataframe: The dataframe we're working with
   :returns: New plot args
   """
@@ -90,8 +115,10 @@ def print_menu(plot_args, dataframe, have_plot):
 
   commands = util.Namespace({})
 
-  commands.set('set <var> <value>', 'Set a variable to a new value') \
-          .set(plotcmd, 'Plot with current variables') \
+  commands.set('modify <geomlabel>', 'Modify an existing geometry') \
+          .set('add <geomlabel>', 'Create new geometry with label') \
+          .set('rm <geomlabel>', 'Remove geometry') \
+          .set(plotcmd, 'Plot with current settings')               \
           .set('peek <n>', 'Peek at the top <n> rows of data')
 
   if have_plot:
@@ -100,15 +127,15 @@ def print_menu(plot_args, dataframe, have_plot):
   commands.set('quit', 'Exit the plotter')
 
   while True:
-    print("""Current Values:
-{plotargs}
+    print("Geometries:")
+    for label, geometry in geometries.iteritems():
+      print("{0}".format(label))
+      print("---------")
+      print("{geom}".format(geom=geometry.prettyprint()))
+      print("")
 
-Commands:
-{commands}
-    """.format(
-      plotargs=plot_args.prettyprint(),
-      commands=commands.prettyprint()
-      ))
+    print("Commands:")
+    print("{cmds}".format(cmds=commands.prettyprint()))
 
     cmd = raw_input('> ').strip().split()
 
@@ -118,14 +145,35 @@ Commands:
     if cmd[0] == 'quit':
       raise StopIteration()
 
-    if cmd[0] == 'set':
+    if cmd[0] == 'add':
       try:
-        if len(cmd) == 2:
-          plot_args[cmd[1]] = None
-        else:
-          plot_args[cmd[1]] = " ".join(cmd[2:])
+        if cmd[1] in geometries:
+          raise KeyError
+        geometries[cmd[1]] = geometry_prompt()
       except IndexError:
-        print("'set' requires a variable name and a value")
+        print("'add' requires a geometry label")
+      except KeyError:
+        print("Geometry '{0}' already defined".format(cmd[1]))
+
+    if cmd[0] == 'modify':
+      try:
+        if cmd[1] not in geometries:
+          raise KeyError
+        geometries[cmd[1]] = geometry_prompt(geometries[cmd[1]])
+      except IndexError:
+        print("'add' requires a geometry label")
+      except KeyError:
+        print("Geometry '{0}' not defined".format(cmd[1]))
+
+    if cmd[0] == 'rm':
+      try:
+        if cmd[1] not in geometries:
+          raise KeyError
+        del geometries[cmd[1]]
+      except IndexError:
+        print("'add' requires a geometry label")
+      except KeyError:
+        print("Geometry '{0}' not defined".format(cmd[1]))
 
     if cmd[0] == 'peek':
       try:
@@ -140,7 +188,7 @@ Commands:
         print("Couldn't parse row number")
 
     if cmd[0] in ('replot', 'plot'):
-      return plot_args
+      return geometries
 
     if cmd[0] == 'save':
       raise SavePlotException(cmd[1])
