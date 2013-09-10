@@ -32,12 +32,17 @@ def get_ggplot_args(argparse_args):
   """
   ggplot_names = ('x', 'y', 'type')
   ggplot_args = dict(((arg, None) for arg in ggplot_names))
+  global_vars = util.Namespace({
+      'title': 'LogParser Graph'
+  })
 
   for argname in argparse_args.__dict__:
     if argname in ggplot_names:
       ggplot_args[argname] = getattr(argparse_args, argname)
 
-  return {'cmdline': util.Namespace(ggplot_args)}
+  global_vars.set('facets', argparse_args.__dict__.get('facets', None))
+
+  return (global_vars, {'cmdline': util.Namespace(ggplot_args)})
 
 
 def plot(args):
@@ -62,11 +67,12 @@ def plot(args):
   r_dataf = ro.DataFrame(dataf.asRObjects)
   gp = ggplot2.ggplot(r_dataf)
 
-  plotargs = get_ggplot_args(args)
+  global_vars, geometries = get_ggplot_args(args)
   have_plot = False
   while True:
     try:
-      plotargs = print_menu(plotargs, dataf, have_plot)
+      global_vars, geometries = print_menu(global_vars, geometries,
+                                           dataf, have_plot)
     except SavePlotException as e:
       try:
         ro.r("ggsave(filename='{0}')".format(e.filename))
@@ -74,7 +80,7 @@ def plot(args):
         logging.warn("Error saving plot: {0}".format(io))
     except StopIteration:
       return
-    have_plot = render_plot(gp, plotargs)
+    have_plot = render_plot(gp, geometries, global_vars)
 
 
 def geometry_prompt(current=None):
@@ -102,10 +108,11 @@ def geometry_prompt(current=None):
   return current
 
 
-def print_menu(geometries, dataframe, have_plot):
+def print_menu(global_vars, geometries, dataframe, have_plot):
   """Allow people to plot different things
   without exiting
 
+  :global_vars: Global variables and settings
   :geometries: The current set of geometries
   :dataframe: The dataframe we're working with
   :returns: New plot args
@@ -119,7 +126,8 @@ def print_menu(geometries, dataframe, have_plot):
           .set('add <geomlabel>', 'Create new geometry with label') \
           .set('rm <geomlabel>', 'Remove geometry') \
           .set(plotcmd, 'Plot with current settings')               \
-          .set('peek <n>', 'Peek at the top <n> rows of data')
+          .set('peek <n>', 'Peek at the top <n> rows of data')      \
+          .set("set <var> <va>", 'Set global variable ')
 
   if have_plot:
     commands.set('save <filename>', 'Save the current plot to <filename>')
@@ -134,6 +142,10 @@ def print_menu(geometries, dataframe, have_plot):
       print("{geom}".format(geom=geometry.prettyprint()))
       print("")
 
+    print("Globals:")
+    print("{globvars}".format(globvars=global_vars.prettyprint()))
+    print("")
+
     print("Commands:")
     print("{cmds}".format(cmds=commands.prettyprint()))
 
@@ -144,6 +156,12 @@ def print_menu(geometries, dataframe, have_plot):
 
     if cmd[0] == 'quit':
       raise StopIteration()
+
+    if cmd[0] == 'set':
+      try:
+        global_vars[cmd[1]] = cmd[2].strip()
+      except IndexError:
+        print("Invalid parameters to 'set'")
 
     if cmd[0] == 'add':
       try:
