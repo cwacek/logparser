@@ -63,10 +63,10 @@ def plot(args):
   gp = ggplot2.ggplot(r_dataf)
 
   plotargs = get_ggplot_args(args)
+  have_plot = False
   while True:
-    render_plot(gp, plotargs)
     try:
-      plotargs = print_menu(plotargs, dataf)
+      plotargs = print_menu(plotargs, dataf, have_plot)
     except SavePlotException as e:
       try:
         ro.r("ggsave(filename='{0}')".format(e.filename))
@@ -86,17 +86,29 @@ def print_menu(plot_args, dataframe, have_plot):
   :returns: New plot args
   """
 
+  plotcmd = 'replot' if have_plot else 'plot'
+
+  commands = util.Namespace({})
+
+  commands.set('set <var> <value>', 'Set a variable to a new value') \
+          .set(plotcmd, 'Plot with current variables') \
+          .set('peek <n>', 'Peek at the top <n> rows of data')
+
+  if have_plot:
+    commands.set('save <filename>', 'Save the current plot to <filename>')
+
+  commands.set('quit', 'Exit the plotter')
+
   while True:
     print("""Current Values:
 {plotargs}
 
 Commands:
-  set <var> <value>     Set a variable to a new value
-  replot                Replot with new variables
-  peek <n>              Peek at the top <n> rows of data
-  save <filename>       Save the current plot to <filename>
-  quit                  Exit the plotter
-    """.format(plotargs=plot_args.prettyprint()))
+{commands}
+    """.format(
+      plotargs=plot_args.prettyprint(),
+      commands=commands.prettyprint()
+      ))
 
     cmd = raw_input('> ').strip().split()
 
@@ -108,7 +120,10 @@ Commands:
 
     if cmd[0] == 'set':
       try:
-        plot_args[cmd[1]] = " ".join(cmd[2:])
+        if len(cmd) == 2:
+          plot_args[cmd[1]] = None
+        else:
+          plot_args[cmd[1]] = " ".join(cmd[2:])
       except IndexError:
         print("'set' requires a variable name and a value")
 
@@ -124,7 +139,7 @@ Commands:
       except ValueError:
         print("Couldn't parse row number")
 
-    if cmd[0] == 'replot':
+    if cmd[0] in ('replot', 'plot'):
       return plot_args
 
     if cmd[0] == 'save':
@@ -166,3 +181,5 @@ def render_plot(gp, args):
     pp.plot()
   except Exception:
     pass
+  else:
+    return True
