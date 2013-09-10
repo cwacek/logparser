@@ -21,9 +21,9 @@ def flatten(args):
     raise RuntimeError()
 
   # Get the first one
-  parser = data.values()[0].keys()[0] if args.p is None else args.p
+  parsers = [data.values()[0].keys()[0]] if args.p is None else args.p
 
-  flattened = util.filter_and_flatten(data, args.f, parser, label_files=True)
+  flattened = util.filter_and_flatten(data, args.f, parsers, label_files=True)
 
   print(" ".join(flattened.headers))
 

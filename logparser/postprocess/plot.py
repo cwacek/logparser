@@ -56,8 +56,8 @@ def plot(args):
     raise RuntimeError()
 
   # Get the first one
-  parser = data.values()[0].keys()[0] if args.p is None else args.p
-  dataf = util.filter_and_flatten(data, args.f, parser, label_files=True)
+  parsers = [data.values()[0].keys()[0]] if args.p is None else args.p
+  dataf = util.filter_and_flatten(data, args.f, parsers, label_files=True)
 
   r_dataf = ro.DataFrame(dataf.asRObjects)
   gp = ggplot2.ggplot(r_dataf)
@@ -74,9 +74,10 @@ def plot(args):
         logging.warn("Error saving plot: {0}".format(io))
     except StopIteration:
       return
+    have_plot = render_plot(gp, plotargs)
 
 
-def print_menu(plot_args, dataframe):
+def print_menu(plot_args, dataframe, have_plot):
   """Allow people to plot different things
   without exiting
 

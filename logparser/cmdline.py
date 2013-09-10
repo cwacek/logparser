@@ -84,7 +84,7 @@ def add_graph_args(subp):
   parser.add_argument('input',
                       help="A file output by 'parse'")
 
-  parser.add_argument('-p',
+  parser.add_argument('-p', action='append',
                       help="Grab data gathered by this parser. If none, "
                            "take the first one seen.",
                       default=None)
@@ -114,8 +114,8 @@ def add_flatten_args(subp):
   parser = subp.add_parser('flatten',
                            help="Transform parsed data into tabular output.")
 
-  parser.add_argument('-p',
-                      help="Flatten data from this parser. If not "
+  parser.add_argument('-p', action='append',
+                      help="Flatten data from these parsers. If not "
                            "provided it will take the first one seen.",
                       default=None)
 

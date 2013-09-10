@@ -1,4 +1,5 @@
 import fnmatch
+import itertools
 import logging
 logger = logging.getLogger(__name__)
 
@@ -9,6 +10,10 @@ class Namespace(dict):
 
   def __getattr__(self, key):
     return self[key]
+
+  def set(self, key, val):
+    self[key] = val
+    return self
 
   def prettyprint(self):
     rep = ""
@@ -71,6 +76,37 @@ class DataFrame(object):
   def __len__(self):
     return self.row_count
 
+def _select_datarow(data, fname, parsers):
+  """
+  Pull a datarow that combines data from each of the parsers
+  and tees it together.
+
+  If the parsers have uneven amounts of data, then the extra
+  datarows will be populated with None.
+
+  The data is returned as a dictionary
+  The data will be returned in sequences, in the order of the headers for the
+  parser, with the parser data arrayed in the order it is passed in.
+  """
+  parser_data = [data[fname][parser] for parser in parsers]
+
+  for data in itertools.izip_longest(*parser_data, fillvalue=None):
+    yield(join_datadict(parsers,data))
+
+def join_datadict(parsernames, parserdata):
+  """
+  Join data from an arbitrary number of parsers,
+  updating the keys to be specific to each parser.
+  """
+  ret = {}
+  for name, parser in itertools.izip(parsernames, parserdata):
+    if parser is None:
+      raise StopIteration
+    for datakey, datapoint in parser.iteritems():
+      ret['{0}.{1}'.format(name, datakey)] = datapoint
+
+  return ret
+
 
 def filter_and_flatten(json_data, filefilter, parser, label_files=False):
   """ Return a filtered set of the :json_data:.
@@ -88,15 +124,25 @@ def filter_and_flatten(json_data, filefilter, parser, label_files=False):
     logger.info("Processing {0}".format(fname))
     if datapoints is None:
       # Only include headers which are standard datatypes
-      headernames = [key
-                     for key, val in json_data[fname][parser][0].iteritems()
-                     if isinstance(val, (float, int, basestring))]
+      if len(parser) == 1:
+        headernames = [key
+                       for key, val in json_data[fname][parser][0].iteritems()
+                       if isinstance(val, (float, int, basestring))]
+      else:
+      # Add headers for all the parsers
+        headernames = []
+        for p in parser:
+          p_headers = ["{0}.{1}".format(p,key)
+                       for key, val in json_data[fname][p][0].iteritems()
+                       if isinstance(val, (float, int, basestring))]
+          headernames.extend(p_headers)
+
       if label_files:
         headernames.append('file_')
 
       datapoints = DataFrame(headernames)
 
-    for dp in json_data[fname][parser]:
+    for dp in _select_datarow(json_data, fname, parser):
       datapoints.add_row(file_=fname, **dp)
 
   return datapoints
