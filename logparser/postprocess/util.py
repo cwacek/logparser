@@ -76,6 +76,7 @@ class DataFrame(object):
   def __len__(self):
     return self.row_count
 
+
 def _select_datarow(data, fname, parsers):
   """
   Pull a datarow that combines data from each of the parsers
@@ -84,14 +85,16 @@ def _select_datarow(data, fname, parsers):
   If the parsers have uneven amounts of data, then the extra
   datarows will be populated with None.
 
-  The data is returned as a dictionary
-  The data will be returned in sequences, in the order of the headers for the
-  parser, with the parser data arrayed in the order it is passed in.
+  The data is returned as a dictionary The data will be
+  returned in sequences, in the order of the headers for the
+  parser, with the parser data arrayed in the order it
+  is passed in.
   """
   parser_data = [data[fname][parser] for parser in parsers]
 
   for data in itertools.izip_longest(*parser_data, fillvalue=None):
-    yield(join_datadict(parsers,data))
+    yield(join_datadict(parsers, data))
+
 
 def join_datadict(parsernames, parserdata):
   """
@@ -132,7 +135,7 @@ def filter_and_flatten(json_data, filefilter, parser, label_files=False):
       # Add headers for all the parsers
         headernames = []
         for p in parser:
-          p_headers = ["{0}.{1}".format(p,key)
+          p_headers = ["{0}.{1}".format(p, key)
                        for key, val in json_data[fname][p][0].iteritems()
                        if isinstance(val, (float, int, basestring))]
           headernames.extend(p_headers)
